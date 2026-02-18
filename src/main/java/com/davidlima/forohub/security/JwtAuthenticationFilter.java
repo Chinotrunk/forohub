@@ -6,11 +6,11 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.flywaydb.core.internal.util.StringUtils;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -42,6 +42,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       }
     }
     filterChain.doFilter(request, response);
+  }
+
+  @Override
+  protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+    String path = request.getRequestURI();
+    String method = request.getMethod();
+
+    // No ejecutar el filtro en rutas públicas
+    return (path.equals("/login") && method.equals("POST")) ||
+            (path.equals("/usuarios") && method.equals("POST"));
   }
 
   private String getTokenFromHeader(HttpServletRequest request) {
