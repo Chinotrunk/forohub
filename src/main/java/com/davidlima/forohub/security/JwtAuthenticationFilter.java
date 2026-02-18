@@ -29,10 +29,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
           throws ServletException, IOException {
 
     String token = getTokenFromHeader(request);
+
     if (token != null) {
       String username = tokenService.getSubject(token);
+
       if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
         var usuario = usuarioRepository.findByCorreoElectronico(username).orElse(null);
+
         if (usuario != null) {
           var authToken = new UsernamePasswordAuthenticationToken(
                   usuario, null, usuario.getAuthorities());
@@ -41,6 +44,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
       }
     }
+
     filterChain.doFilter(request, response);
   }
 
@@ -49,13 +53,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     String path = request.getRequestURI();
     String method = request.getMethod();
 
-    // No ejecutar el filtro en rutas públicas
     return (path.equals("/login") && method.equals("POST")) ||
             (path.equals("/usuarios") && method.equals("POST"));
   }
 
   private String getTokenFromHeader(HttpServletRequest request) {
     String header = request.getHeader("Authorization");
+
     if (StringUtils.hasText(header) && header.startsWith("Bearer ")) {
       return header.substring(7);
     }

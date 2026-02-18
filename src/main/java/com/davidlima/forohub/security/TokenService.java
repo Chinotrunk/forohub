@@ -9,8 +9,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 
 @Service
 public class TokenService {
@@ -25,18 +24,22 @@ public class TokenService {
     Usuario usuario = (Usuario) authentication.getPrincipal();
     Algorithm algorithm = Algorithm.HMAC256(secret);
 
-    Instant expiracion = LocalDateTime.now()
-            .plusSeconds(expirationMillis / 1000)
-            .toInstant(ZoneOffset.of("-03:00"));
+    Instant ahora = Instant.now();
+    Instant expiracion = ahora.plus(expirationMillis, ChronoUnit.MILLIS);
 
     return JWT.create()
             .withIssuer("forohub-api")
             .withSubject(usuario.getUsername())
+            .withIssuedAt(ahora)
             .withExpiresAt(expiracion)
             .sign(algorithm);
   }
 
   public String getSubject(String tokenJWT) {
+    if (tokenJWT == null || tokenJWT.trim().isEmpty()) {
+      return null;
+    }
+
     try {
       Algorithm algorithm = Algorithm.HMAC256(secret);
       return JWT.require(algorithm)
