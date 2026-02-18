@@ -134,6 +134,127 @@ mvn spring-boot:run
 
 La aplicación estará disponible en: http://localhost:8080
 
+# 🔐 Autenticación
+
+Obtener token JWT
+Endpoint: POST /login
+
+Request:
+```
+{
+  "correoElectronico": "david@gmail.com",
+  "contrasena": "123456"
+}
+```
+Response:
+```
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+Usar el token
+En todas las peticiones protegidas, incluir el header:
+```
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+# 📚 Endpoints principales
+
+🔓 Públicos (sin autenticación)
+
+<img width="463" height="142" alt="image" src="https://github.com/user-attachments/assets/6122c47c-9046-4fc8-89e4-dd08317c2aa3" />
+
+🔒 Protegidos (requieren JWT)
+
+👥 Usuarios
+
+<img width="489" height="224" alt="image" src="https://github.com/user-attachments/assets/093f79a3-244f-42ef-b78b-a245987b4213" />
+
+📝 Tópicos
+
+<img width="641" height="290" alt="image" src="https://github.com/user-attachments/assets/acb7c928-f43a-4d77-9053-4961033a2d85" />
+
+📚 Cursos
+
+<img width="451" height="250" alt="image" src="https://github.com/user-attachments/assets/fa129f8c-c14a-4640-9fcc-d0de40f2d176" />
+
+💬 Respuestas
+
+<img width="635" height="213" alt="image" src="https://github.com/user-attachments/assets/fbbda013-2931-4bff-bdea-92e93257f3da" />
+
+
+# 📝 Ejemplos de uso
+Crear un tópico
+Request:
+```POST /topicos
+Authorization: Bearer TU_TOKEN
+Content-Type: application/json
+
+{
+  "titulo": "¿Cómo usar Spring Security?",
+  "mensaje": "Necesito ayuda con la configuración de JWT",
+  "autorId": 1,
+  "cursoId": 1
+}
+```
+Response:
+```{
+  "id": 4,
+  "titulo": "¿Cómo usar Spring Security?",
+  "mensaje": "Necesito ayuda con la configuración de JWT",
+  "fechaCreacion": "2026-02-18T00:00:00",
+  "status": "ABIERTO",
+  "autor": "David",
+  "curso": "Spring Boot"
+}
+```
+Listar tópicos (paginado)
+Request:
+```
+GET /topicos?page=0&size=10
+Authorization: Bearer TU_TOKEN
+```
+Response:
+```
+{
+  "content": [
+    {
+      "id": 1,
+      "titulo": "¿Cómo funciona @Transactional?",
+      "mensaje": "Tengo dudas sobre el alcance...",
+      "fechaCreacion": "2026-02-17T23:30:00",
+      "status": "ABIERTO",
+      "autor": "David",
+      "curso": "Spring Boot"
+    }
+  ],
+  "pageable": {
+    "pageNumber": 0,
+    "pageSize": 10
+  },
+  "totalElements": 1,
+  "totalPages": 1
+}
+```
+
+# 🗄️ Modelo de datos
+Diagrama de relaciones
+```
+┌─────────────┐       ┌──────────────┐       ┌─────────────┐
+│   Usuario   │──────<│UsuariosPerfil│>──────│   Perfil    │
+└─────────────┘       └──────────────┘       └─────────────┘
+       │                                              
+       │ 1:N                                          
+       ▼                                              
+┌─────────────┐       ┌──────────────┐                
+│   Tópico    │───────│    Curso     │                
+└─────────────┘ N:1   └──────────────┘                
+       │                                              
+       │ 1:N                                          
+       ▼                                              
+┌─────────────┐                                       
+│  Respuesta  │                                       
+└─────────────┘
+```
 # 🔒 Seguridad
 - ✅ Contraseñas encriptadas con BCrypt
 - ��� Tokens JWT firmados con HMAC256
